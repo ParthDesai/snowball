@@ -17,7 +17,7 @@ pub trait NetworkQueryExecutor {
     type QueryResponse: crate::traits::query::QueryResponse;
     type Error: crate::traits::error::Error;
 
-    type Node: Node<Error=Self::Error, Query=Self::Query, QueryResponse=Self::QueryResponse>;
+    type Node: Node<Error = Self::Error, Query = Self::Query, QueryResponse = Self::QueryResponse>;
 
     fn execute_query(
         sample_nodes: Vec<Self::Node>,

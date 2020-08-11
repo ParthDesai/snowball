@@ -12,7 +12,9 @@ pub trait QueryContext: Serialize + DeserializeOwned {
 pub trait Query: Signable + Serialize + DeserializeOwned {
     type Context: QueryContext;
     type Location: Serialize + DeserializeOwned + PartialEq;
+    type Candidate: crate::traits::candidate::Candidate;
 
+    fn candidate(&self) -> &Self::Candidate;
     fn location(&self) -> &Self::Location;
     fn context(&self) -> &Self::Context;
 }
@@ -21,4 +23,20 @@ pub trait QueryResponse: Signable + Serialize + DeserializeOwned {
     type Candidate: crate::traits::candidate::Candidate;
 
     fn preferred_candidate(&self) -> &Self::Candidate;
+}
+
+pub trait QueryBuilder {
+    type Context: QueryContext;
+    type Location: Serialize + DeserializeOwned + PartialEq;
+    type Candidate: crate::traits::candidate::Candidate;
+    type Query: Query<
+        Context = Self::Context,
+        Location = Self::Location,
+        Candidate = Self::Candidate,
+    >;
+    fn build_query(
+        candidate: Self::Candidate,
+        location: Self::Location,
+        context: Self::Context,
+    ) -> Self::Query;
 }
