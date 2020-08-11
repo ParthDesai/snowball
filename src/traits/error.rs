@@ -1,7 +1,7 @@
-pub trait Error<'a> {
-    fn source(&self) -> &'a str;
+pub trait Error {
+    fn source(&self) -> String;
     fn code(&self) -> u64;
-    fn module(&self) -> &'a str;
+    fn module(&self) -> String;
 
-    fn new(source: &'a str, code: u64, module: &'a str) -> Self;
+    fn new(source: String, code: u64, module: String) -> Self;
 }

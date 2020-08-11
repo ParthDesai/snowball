@@ -1,9 +1,9 @@
-pub trait Sampler<'a> {
+pub trait Sampler {
     type SamplingType;
-    type Error: crate::traits::error::Error<'a>;
+    type Error: crate::traits::error::Error;
 
     fn sample(
-        items: &[Self::SamplingType],
+        items: Vec<Self::SamplingType>,
         sample_size: u64,
-    ) -> Result<&[Self::SamplingType], Self::Error>;
+    ) -> Result<Vec<Self::SamplingType>, Self::Error>;
 }
