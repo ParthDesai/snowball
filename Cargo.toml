@@ -5,3 +5,4 @@ authors = ["Parth Desai <desaiparth08@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+serde = "1.0"
