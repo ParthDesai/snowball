@@ -1,12 +1,12 @@
-pub trait Query<'a> {
-    type Context: QueryContext<'a>;
+pub trait Query {
+    type Context: QueryContext;
     fn context(&self) -> &Self::Context;
 }
 
-pub trait QueryContext<'a> {
-    type Error: crate::traits::error::Error<'a>;
+pub trait QueryContext {
+    type Error: crate::traits::error::Error;
 
-    fn get(&self, key: &'a str) -> &'a str;
-    fn set(&mut self, key: &'a str, value: &'a str) -> Result<(), Self::Error>;
+    fn get(&self, key: String) -> String;
+    fn set(&mut self, key: String, value: String) -> Result<(), Self::Error>;
     fn clear(&mut self);
 }
