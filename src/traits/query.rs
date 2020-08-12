@@ -35,8 +35,9 @@ pub trait QueryBuilder {
         Candidate = Self::Candidate,
     >;
     fn build_query(
-        candidate: Self::Candidate,
-        location: Self::Location,
-        context: Self::Context,
+        &mut self,
+        candidate: &Self::Candidate,
+        location: &Self::Location,
+        context: &Self::Context,
     ) -> Self::Query;
 }
