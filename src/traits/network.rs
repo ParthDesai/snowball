@@ -13,14 +13,22 @@ pub trait Network {
 }
 
 pub trait NetworkQueryExecutor {
-    type Query: crate::traits::query::Query;
-    type QueryResponse: crate::traits::query::QueryResponse;
-    type Error: crate::traits::error::Error;
-
-    type Node: Node<Error = Self::Error, Query = Self::Query, QueryResponse = Self::QueryResponse>;
+    type Node: Node;
 
     fn execute_query(
+        &mut self,
         sample_nodes: Vec<Self::Node>,
-        query: Self::Query,
-    ) -> Result<Option<Self::QueryResponse>, Self::Error>;
+        query: <<Self as NetworkQueryExecutor>::Node as Node>::Query,
+    ) -> Result<
+        Vec<<<Self as NetworkQueryExecutor>::Node as Node>::QueryResponse>,
+        <<Self as NetworkQueryExecutor>::Node as Node>::Error,
+    >;
+
+    fn register_query_handler(
+        &mut self,
+        handler: fn(
+            query: <<Self as NetworkQueryExecutor>::Node as Node>::Query,
+            originating_node: &Self::Node,
+        ) -> <<Self as NetworkQueryExecutor>::Node as Node>::QueryResponse,
+    );
 }
