@@ -5,6 +5,8 @@ authors = ["Parth Desai <desaiparth08@gmail.com>"]
 edition = "2018"
 license = "MIT OR Apache-2.0"
 description = "Generic implementation of Snowball consensus algorithm"
+readme = "README.md"
+keywords = ["blockchain", "Consensus", "Snowball", "BFT"]
 
 [dependencies]
 serde = "1.0"
