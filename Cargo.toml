@@ -7,6 +7,7 @@ license = "MIT OR Apache-2.0"
 description = "Generic implementation of Snowball consensus algorithm"
 readme = "README.md"
 keywords = ["blockchain", "Consensus", "Snowball", "BFT"]
+repository = "https://github.com/ParthDesai/snowball"
 
 [dependencies]
 serde = "1.0"
