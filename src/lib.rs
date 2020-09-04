@@ -5,11 +5,9 @@ use crate::traits::network::{Network, NetworkQueryExecutor, Node};
 use crate::traits::query::{Query, QueryBuilder, QueryContext, QueryResponse};
 use crate::traits::sampler::Sampler;
 use crossbeam_channel::Sender;
-use parking_lot::Mutex;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
-use std::sync::Arc;
 
 pub fn snow_ball_loop<L, N, NW, NQE, S, C, QC, QB, QR, Q>(
     location: L,
