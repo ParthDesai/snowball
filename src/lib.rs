@@ -38,7 +38,6 @@ where
 {
     let mut decided = false;
 
-
     let mut current_preferred_candidate = current_candidate;
     let mut last_chosen_candidate = current_candidate;
     let mut candidate_preference: HashMap<C, usize> = HashMap::new();
@@ -74,15 +73,16 @@ where
         for (candidate, f) in frequency {
             if f > query_threshold {
                 if candidate_preference.contains_key(&candidate) {
-                    candidate_preference.insert(
-                        candidate,
-                        candidate_preference[&candidate] + 1,
-                    );
+                    candidate_preference.insert(candidate, candidate_preference[&candidate] + 1);
                 } else {
                     candidate_preference.insert(candidate, 1);
                 }
 
-                if *candidate_preference.get(&current_preferred_candidate).unwrap_or(&0) < candidate_preference[&candidate] {
+                if *candidate_preference
+                    .get(&current_preferred_candidate)
+                    .unwrap_or(&0)
+                    < candidate_preference[&candidate]
+                {
                     current_preferred_candidate = candidate;
                 }
 
