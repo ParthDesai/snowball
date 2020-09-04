@@ -4,7 +4,6 @@ use crate::traits::candidate::Candidate;
 use crate::traits::network::{Network, NetworkQueryExecutor, Node};
 use crate::traits::query::{Query, QueryBuilder, QueryContext, QueryResponse};
 use crate::traits::sampler::Sampler;
-use crossbeam_channel::Sender;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
