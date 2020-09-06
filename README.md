@@ -5,7 +5,7 @@ Once it is complete, Snowball will contain generic implementation of snowball al
 Snowball will provide plug and play support for embedding snowball algorithm in any rust project. Specifically, it will provide following:
 - Main snowball loop
 - Snowball query handler
-- Generic implementations for: snowball network interface, query object, node sampler among other things.
+- Generic implementations for snowball network interface, query object, and node sampler among other things.
 
 # Roadmap
 - [x] Add initial version of traits
