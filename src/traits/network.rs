@@ -30,5 +30,5 @@ pub trait NetworkQueryExecutor {
             query: <<Self as NetworkQueryExecutor>::Node as Node>::Query,
             originating_node: &Self::Node,
         ) -> <<Self as NetworkQueryExecutor>::Node as Node>::QueryResponse,
-    );
+    ) -> Result<(), <<Self as NetworkQueryExecutor>::Node as Node>::Error>;
 }

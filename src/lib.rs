@@ -1,6 +1,7 @@
 pub mod traits;
 
 use crate::traits::candidate::Candidate;
+use crate::traits::error::Error;
 use crate::traits::network::{Network, NetworkQueryExecutor, Node};
 use crate::traits::query::{Query, QueryBuilder, QueryContext, QueryResponse};
 use crate::traits::sampler::Sampler;
@@ -8,7 +9,7 @@ use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 
-pub fn snow_ball_loop<L, N, NW, NQE, S, C, QC, QB, QR, Q>(
+pub fn snow_ball_loop<L, N, NW, NQE, S, C, QC, QB, QR, Q, F, E>(
     location: L,
     network: NW,
     mut network_query_executor: NQE,
@@ -20,18 +21,20 @@ pub fn snow_ball_loop<L, N, NW, NQE, S, C, QC, QB, QR, Q>(
     acceptance_threshold: usize,
     sample_size: u64,
     query_threshold: usize,
-) -> C
+    query_handler: fn(query: Q, originating_node: &N) -> QR,
+) -> Result<C, E>
 where
     L: Serialize + DeserializeOwned + PartialEq,
     C: Candidate,
     QC: QueryContext,
     QR: QueryResponse<Candidate = C>,
     Q: Query<Location = L, Context = QC, Candidate = C>,
-    N: Node<Query = Q, QueryResponse = QR>,
+    N: Node<Query = Q, QueryResponse = QR, Error = E>,
     NW: Network<Node = N>,
     NQE: NetworkQueryExecutor<Node = N>,
-    S: Sampler<SamplingType = N>,
+    S: Sampler<SamplingType = N, Error = E>,
     QB: QueryBuilder<Context = QC, Location = L, Candidate = C, Query = Q>,
+    E: Error,
 {
     let mut decided = false;
 
@@ -41,12 +44,14 @@ where
     let mut acceptance_count: usize = 0;
 
     if candidates.is_empty() {
-        return current_preferred_candidate;
+        return Ok(current_preferred_candidate);
     }
+
+    network_query_executor.register_query_handler(query_handler)?;
 
     while !decided {
         let nodes = network.nodes();
-        let sampled_nodes = sampler.sample(nodes, sample_size).unwrap();
+        let sampled_nodes = sampler.sample(nodes, sample_size)?;
         let query = query_builder.build_query(&current_candidate, &location, &query_context);
         let results = network_query_executor
             .execute_query(sampled_nodes, query)
@@ -99,5 +104,5 @@ where
         }
     }
 
-    current_preferred_candidate
+    Ok(current_preferred_candidate)
 }
