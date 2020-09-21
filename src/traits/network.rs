@@ -1,5 +1,6 @@
 use std::net::IpAddr;
 
+/// Remote node discovered by this node.
 pub trait Node {
     type Error: crate::traits::error::Error;
     type Query: crate::traits::query::Query;
@@ -15,6 +16,7 @@ pub trait Node {
     fn ip(&self) -> IpAddr;
 }
 
+/// Object that provides view of the network
 pub trait Network {
     type Node: Node;
     /// Returns list of node ids we have discovered
