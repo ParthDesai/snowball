@@ -10,8 +10,8 @@ This library will provide plug and play support for embedding snowball in any ru
 # Roadmap
 - [x] Add initial version of traits
 - [x] Implement initial version of snowball loop
-- [ ] Publish initial documentation
-- [ ] Implement initial version of snowball query handler
+- [x] Publish initial documentation
+- [x] Implement initial version of snowball query handler
 - [ ] Write unit tests for snowball loop and fix bugs
 - [ ] Write unit tests for snowball query handler and fix bugs
 - [ ] Provide default implementation of traits
