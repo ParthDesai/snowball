@@ -2,17 +2,18 @@ pub mod traits;
 
 use crate::traits::candidate::Candidate;
 use crate::traits::error::Error;
-use crate::traits::network::{Network, NetworkQueryExecutor, Node};
+use crate::traits::network::{Network, Node};
 use crate::traits::query::{Query, QueryBuilder, QueryContext, QueryResponse};
 use crate::traits::sampler::Sampler;
 use serde::de::DeserializeOwned;
 use serde::Serialize;
 use std::collections::{HashMap, HashSet};
 
-pub fn snow_ball_loop<L, N, NW, NQE, S, C, QC, QB, QR, Q, F, E>(
+/// Snowball loop implements snow ball algorithm and identifies
+/// a candidate preferred by majority of nodes in the network.
+pub fn snow_ball_loop<L, N, NW, S, C, QC, QB, QR, Q, F, E>(
     location: L,
-    network: NW,
-    mut network_query_executor: NQE,
+    mut network: NW,
     mut sampler: S,
     current_candidate: C,
     candidates: HashSet<C>,
@@ -21,7 +22,7 @@ pub fn snow_ball_loop<L, N, NW, NQE, S, C, QC, QB, QR, Q, F, E>(
     acceptance_threshold: usize,
     sample_size: u64,
     query_threshold: usize,
-    query_handler: fn(query: Q, originating_node: &N) -> QR,
+    query_filter: fn(query: Q, originating_node: &N) -> bool,
 ) -> Result<C, E>
 where
     L: Serialize + DeserializeOwned + PartialEq,
@@ -31,8 +32,7 @@ where
     Q: Query<Location = L, Context = QC, Candidate = C>,
     N: Node<Query = Q, QueryResponse = QR, Error = E>,
     NW: Network<Node = N>,
-    NQE: NetworkQueryExecutor<Node = N>,
-    S: Sampler<SamplingType = N, Error = E>,
+    S: Sampler<SamplingType = u64, Error = E>,
     QB: QueryBuilder<Context = QC, Location = L, Candidate = C, Query = Q>,
     E: Error,
 {
@@ -47,15 +47,14 @@ where
         return Ok(current_preferred_candidate);
     }
 
-    network_query_executor.register_query_handler(query_handler)?;
+    network.update_preferred_candidate(current_preferred_candidate);
+    network.register_query_filter(query_filter)?;
 
     while !decided {
-        let nodes = network.nodes();
+        let nodes = network.node_ids();
         let sampled_nodes = sampler.sample(nodes, sample_size)?;
         let query = query_builder.build_query(&current_candidate, &location, &query_context);
-        let results = network_query_executor
-            .execute_query(sampled_nodes, query)
-            .unwrap();
+        let results = network.execute_query(sampled_nodes, query).unwrap();
         let mut frequency: HashMap<C, usize> = HashMap::new();
 
         // Count how many QueryResponse contains a particular candidate
@@ -86,6 +85,7 @@ where
                     < candidate_preference[&candidate]
                 {
                     current_preferred_candidate = candidate;
+                    network.update_preferred_candidate(current_preferred_candidate);
                 }
 
                 if candidate == last_chosen_candidate {

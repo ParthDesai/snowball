@@ -1,3 +1,5 @@
+/// Object that samples `sample_size` set of items from
+/// the list provided.
 pub trait Sampler {
     type SamplingType;
     type Error: crate::traits::error::Error;
