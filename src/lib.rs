@@ -11,7 +11,7 @@ use std::collections::{HashMap, HashSet};
 
 /// Snowball loop implements snow ball algorithm and identifies
 /// a candidate preferred by majority of nodes in the network.
-pub fn snow_ball_loop<L, N, NW, S, C, QC, QB, QR, Q, F, E>(
+pub fn snow_ball_loop<L, N, NW, S, C, QC, QB, QR, Q, F, E, NID>(
     location: L,
     mut network: NW,
     mut sampler: S,
@@ -25,14 +25,15 @@ pub fn snow_ball_loop<L, N, NW, S, C, QC, QB, QR, Q, F, E>(
     query_filter: fn(query: Q, originating_node: &N) -> bool,
 ) -> Result<C, E>
 where
+    NID: Eq,
     L: Serialize + DeserializeOwned + PartialEq,
     C: Candidate,
     QC: QueryContext,
     QR: QueryResponse<Candidate = C>,
     Q: Query<Location = L, Context = QC, Candidate = C>,
-    N: Node<Query = Q, QueryResponse = QR, Error = E>,
+    N: Node<Query = Q, QueryResponse = QR, Error = E, NodeId = NID>,
     NW: Network<Node = N>,
-    S: Sampler<SamplingType = u64, Error = E>,
+    S: Sampler<SamplingType = NID, Error = E>,
     QB: QueryBuilder<Context = QC, Location = L, Candidate = C, Query = Q>,
     E: Error,
 {
@@ -54,7 +55,7 @@ where
         let nodes = network.node_ids();
         let sampled_nodes = sampler.sample(nodes, sample_size)?;
         let query = query_builder.build_query(&current_candidate, &location, &query_context);
-        let results = network.execute_query(sampled_nodes, query).unwrap();
+        let results = network.execute_query(sampled_nodes, query)?;
         let mut frequency: HashMap<C, usize> = HashMap::new();
 
         // Count how many QueryResponse contains a particular candidate
