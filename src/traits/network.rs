@@ -5,9 +5,10 @@ pub trait Node {
     type Error: crate::traits::error::Error;
     type Query: crate::traits::query::Query;
     type QueryResponse: crate::traits::query::QueryResponse;
+    type NodeId: Eq;
 
-    /// Local ephemeral Id of the node
-    fn id(&self) -> u64;
+    /// Id of the node
+    fn id(&self) -> Self::NodeId;
 
     /// Fire a query to the node
     fn query(&mut self, query: Self::Query) -> Result<Self::QueryResponse, Self::Error>;
@@ -21,15 +22,15 @@ pub trait Network {
     type Node: Node;
     /// Returns list of node ids we have discovered
     /// this list can be constantly updated as nodes comes up or shuts down.
-    fn node_ids(&self) -> Vec<u64>;
+    fn node_ids(&self) -> Vec<<Self::Node as Node>::NodeId>;
 
     /// Returns node object against the id passed
-    fn node(&self, id: u64) -> Option<&Self::Node>;
+    fn node(&self, id: <Self::Node as Node>::NodeId) -> Option<&Self::Node>;
 
     /// Executes our query on all sample nodes and returns array of response for the same.
     fn execute_query(
         &mut self,
-        sample_nodes: Vec<u64>,
+        sample_nodes: Vec<<Self::Node as Node>::NodeId>,
         query: <<Self as Network>::Node as Node>::Query,
     ) -> Result<
         Vec<<<Self as Network>::Node as Node>::QueryResponse>,
